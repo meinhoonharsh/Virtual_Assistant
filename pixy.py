@@ -1,7 +1,7 @@
 '''
 Author : Harsh Vishwakarma
 Project : Virtual Assistant (Jarvis)
-Version : 0.2.0
+Version : 0.4.0
 Desciption : This is version 0.1.0 and it can Perform some basic tasks like
              doesn't run not connected to internet,
              says command before every task,
@@ -12,56 +12,72 @@ Desciption : This is version 0.1.0 and it can Perform some basic tasks like
              tell about time,
              open sublime, visual code studio, 
              close itself on command
+             take screenshot on telling
+             notify a new word after every 30 min
+
 '''
 
 
-import pyttsx3                          #pip install pyttsx3
-import datetime                         #built-in module
-import speech_recognition as sr         #pip install speechRecognition
-import wikipedia                        #pip install wikipedia
-import webbrowser                       #built-in module
+import pyttsx3                          # pip install pyttsx3
+import datetime                         # built-in module
+import speech_recognition as sr         # pip install speechRecognition
+import wikipedia                        # pip install wikipedia
+import webbrowser                       # built-in module
 import os                               # built-in module
+import time                             # built-in module
 import random                           # built-in module
 import socket                           # built-in module
+import pyautogui                        # pip install pyautogui
+import english_words                    # pip install english_words
+import PyDictionary                     # pip install PyDictionary
+import plyer                            # pip install plyer
 
 # Initializing Engine and Microsoft Speech API
 engine = pyttsx3.init("sapi5")
 voices = engine.getProperty("voices")
-engine.setProperty("voice",voices[0].id)
+engine.setProperty("voice", voices[1].id)
 
 # speak function
+
+
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
 # tell to both speak & print
+
+
 def tell(audio):
     print(audio)
     speak(audio)
 
 # To close the File
+
+
 def isclose(x):
     if 'close' in x or 'stop' in x or 'exit' in x:
         tell("Bye Harsh")
         tell("Its time to go now")
         exit()
-        
+
 # Take command to Execute Something
-def takecommand():  
+
+
+def takecommand():
 
     r = sr.Recognizer()
     with sr.Microphone() as source:
         tell("Listening....")
         r.pause_threshold = 1
-        audio= r.listen(source)
+        audio = r.listen(source)
 
     try:
         print("Recognizing....")
-        query = r.recognize_google(audio,language = "en-in")
+        query = r.recognize_google(audio, language="en-in")
         tell(f"You Said : {query}\n")
-            
+
     except Exception as e:
-        
+
         tell("Can't Recognize..")
         tell("Please say that again")
         takecommand()
@@ -69,6 +85,8 @@ def takecommand():
     return query
 
 # Checks if Device is connected to Internet or Not
+
+
 def is_connected():
     try:
         # connect to the host -- tells us if the host is actually
@@ -80,15 +98,17 @@ def is_connected():
     return False
 
 # Listen only to get voice data
+
+
 def listen():
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print(".")
         r.pause_threshold = 1
-        audio= r.listen(source)
+        audio = r.listen(source)
     try:
-        query = r.recognize_google(audio,language = "en-in")
-        print(f"You said: {query}")            
+        query = r.recognize_google(audio, language="en-in")
+        print(f"You said: {query}")
     except Exception as e:
         return "None"
     return query
@@ -97,13 +117,13 @@ def listen():
 # Tasks to be Performed by Jarvis
 def dotask(query):
 
-    if 'wikipedia' in query:    
+    if 'wikipedia' in query:
         query = query.replace('wikipedia', '')
         result = wikipedia.summary(query, sentences=2)
         tell("According to Wikipedia....")
         tell(result)
     elif 'search' in query:
-        query = query.replace('search for',"")
+        query = query.replace('search for', "")
         query = query.replace('search', "")
         if 'youtube' in query:
             query = query.replace('in youtube', "")
@@ -112,13 +132,13 @@ def dotask(query):
             tell("Searching on YouTube...")
             webbrowser.open(f"https://www.youtube.com/search?q={query}")
         else:
-                query = query.replace('in google',"")
-                query = query.replace('on google',"")
-                query = query.replace('google',"")
-                tell("Searching on Google...")
-                webbrowser.open(f"https://www.google.com/search?q={query}")
+            query = query.replace('in google', "")
+            query = query.replace('on google', "")
+            query = query.replace('google', "")
+            tell("Searching on Google...")
+            webbrowser.open(f"https://www.google.com/search?q={query}")
     elif 'open' in query:
-        query = query.replace('open','')
+        query = query.replace('open', '')
         if 'youtube' in query:
             tell("Opening Youtube...")
             webbrowser.open('youtube.com')
@@ -139,7 +159,8 @@ def dotask(query):
             webbrowser.open("hackerrank.com")
         elif 'code' in query:
             tell("Opening Visual Code Studio")
-            os.startfile(r'C:\Users\Lenovo\AppData\Local\Programs\Microsoft VS Code\Code.exe')
+            os.startfile(
+                r'C:\Users\Lenovo\AppData\Local\Programs\Microsoft VS Code\Code.exe')
         elif 'sublime' in query:
             tell("Opening Sublime Text 3")
             os.startfile(r"C:\Program Files\Sublime Text 3\sublime_text.exe")
@@ -158,37 +179,38 @@ def dotask(query):
         music_dir = r"F:\song listen"
         songs = os.listdir(music_dir)
         # print(f"Query :{query}")
-        x=0
-        if query=="":
+        x = 0
+        if query == "":
             randmusic = songs[random.randint(0, len(songs))]
             tell(f"PLaying {randmusic}")
             os.startfile(os.path.join(music_dir, randmusic))
-            x=1
+            x = 1
         else:
             for i in songs:
-                # print(f"Song : {i}")                
+                # print(f"Song : {i}")
                 if query in i.lower():
                     tell(f"Playing Song {query}")
                     os.startfile(os.path.join(music_dir, i))
-                    x=1
+                    x = 1
                     break
-        
-        if x==0:
+
+        if x == 0:
             tell(f"No Song name {query} in your Directory")
     elif 'who are you' in query:
-         tell("I am Jarvis")
-         tell("Virtual Assistant of Harsh Vishwakarma")
-         tell("I am on Version 0.2.0")
-
+        tell("I am Pixy")
+        tell("Virtual Assistant of Harsh Vishwakarma")
+        tell("I am on Version 0.4.0")
 
     # For telling the time
     elif 'time' in query:
-         time = datetime.datetime.now().strftime("%H:%M:%S")
-         tell(f"Time is {time}")
+        time = datetime.datetime.now().strftime("%H:%M:%S")
+        tell(f"Time is {time}")
+
+    # For taking Screenshots
+    elif 'screenshot' in query:
+        takeScreenshot()
     else:
-         isclose(query)      
-
-
+        isclose(query)
 
     #  if 'wikipedia' in query:
     #      query = query.replace('wikipedia', '')
@@ -219,7 +241,7 @@ def dotask(query):
     #      tell("I am Jarvis")
     #      tell("Virtual Assistant of Harsh Vishwakarma")
     #      tell("I am on Version 0.2.0")
-         
+
     #  elif 'play music' in query:
     #      music_dir = r"F:\song listen"
     #      songs = os.listdir(music_dir)
@@ -230,43 +252,78 @@ def dotask(query):
     #  else:
     #      isclose(query)
 
-    
+#To give Notification Every 30 min
 
-        
-        
+
+def notifyWord():
+
+   dictionary = PyDictionary.PyDictionary()
+   word = list(english_words.english_words_set)[random.randint(1, 100)]
+   meaning = dictionary.meaning(str(word))
+   tell("Word is "+word)
+   plyer.notification.notify(
+       title=str(word),
+       message=str(meaning),
+       timeout=5
+   )
+
+
+
+
+
+
+
+#To take Screenshot
+def takeScreenshot():
+   #It Takes Screenshot and SAve file in YYYY-DD-MM--HH-MM-SS.jpg
+   tell("Taking Screenshot")
+   myScreenshot = pyautogui.screenshot()
+   filename = datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
+   myScreenshot.save(f'screenshots\\{filename}.png')
+   tell("Screenshot Saved")
+
+
 # To wish me Everytime when the Application start
 def wishme():
     hour = int(datetime.datetime.now().hour)
-    if hour>=4 and hour<12:
+    if hour >= 4 and hour < 12:
         speak("Good Morning Harsh")
-    elif hour>=12 and hour<17:
+    elif hour >= 12 and hour < 17:
         speak("Good Afternoon Harsh")
     elif hour >= 17 and hour < 20:
         speak("Good Evening Harsh")
     else:
         speak("Heyyy Harsh")
-    tell("I am Jarvis")
+    tell("I am Pixy")
     tell("Your Assistant")
     tell("How may I help you")
 
 
 if __name__ == '__main__':
+
+    
     wishme()
-    if(is_connected()):                   
+    tell("Presenting your First Word")
+    notifyWord()
+    if(is_connected()):
         dotask(takecommand().lower())
+        init = time.time()
         while 1:
             sound = listen().lower()
-            if 'jarvis' in sound:
+            if 'pixie' in sound or 'sexy' in sound or 'bakrid' in sound or 'fixing' in sound:
                 query = takecommand().lower()
                 dotask(query)
+            elif 'screenshot' in sound:
+               takeScreenshot()
+
             else:
                 isclose(sound)
+
+            if(int(time.time()-init) >= 10*60):
+               notifyWord()
+               init = time.time()
     else:
         tell("Your System is Not Connected to Internet")
         tell("Hence I am  Unable to Recognize your Voice")
         tell("Please Connect to Internet")
         isclose("exit")
-                
-            
-            
-    
